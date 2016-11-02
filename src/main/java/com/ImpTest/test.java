@@ -115,10 +115,8 @@ public class test {
 	}
 	
 
-	public static void main(String[] args) throws ClientProtocolException,
-			IOException, ClassNotFoundException, SQLException, InterruptedException {
+	public static void main(String[] args) {
 		test t = new test();
-		
 		queueManagement queue = new queueManagement();
 		
 		KDL.urlAddQueue(queue, 3);

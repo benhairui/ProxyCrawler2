@@ -3,6 +3,8 @@ package com.proxyinstance;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
@@ -18,6 +20,8 @@ import com.common.publicMethod.webCrawler.WebCrawler;
 
 
 public class KDL extends WebCrawler{
+	//日志记录
+	public Log log = LogFactory.getLog(this.getClass());
 	
 	private static final String URL = "http://www.kuaidaili.com/free/";
 	public static final String[] typeList = {"inha","intr","outha","outtr"};
@@ -98,8 +102,10 @@ public class KDL extends WebCrawler{
 
 		} catch (ParseException e) {
 			e.printStackTrace();
+			log.error(e.getMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		//return list;
 	}
@@ -135,10 +141,17 @@ public class KDL extends WebCrawler{
 	 * @param pageNum
 	 * @throws InterruptedException 
 	 */
-	public static void urlAddQueue(queueManagement queue,int pageNum) throws InterruptedException{
+	public static void urlAddQueue(queueManagement queue,int pageNum){
+		Log log = LogFactory.getLog(KDL.class);
 		for(int i = 0;i<typeList.length;i++){
 			for(int j = 1;j<pageNum;j++){
-				queue.urlQueueAdd(urlAnalyze(typeList[i],j));
+				try {
+					queue.urlQueueAdd(urlAnalyze(typeList[i],j));
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					log.error(e.getMessage());
+				}
 			}
 		}
 	}

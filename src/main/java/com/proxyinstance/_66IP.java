@@ -2,6 +2,8 @@ package com.proxyinstance;
 
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -22,6 +24,7 @@ import com.common.publicMethod.webCrawler.WebCrawler;
  */
 public class _66IP extends WebCrawler {
 
+	public Log log = LogFactory.getLog(this.getClass());
 	private static final String URL = "http://www.66ip.cn/";
 	private static final int provinceNum = 34;//省数量
 	private String contentType = "text/html";
@@ -93,6 +96,7 @@ public class _66IP extends WebCrawler {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return ;
 	}
@@ -103,9 +107,16 @@ public class _66IP extends WebCrawler {
 	 * @param pageNum
 	 * @throws InterruptedException
 	 */
-	public static void urlAddQueueAll(queueManagement queue,int pageNum) throws InterruptedException{
+	public static void urlAddQueueAll(queueManagement queue,int pageNum){
+		Log log = LogFactory.getLog(_66IP.class);
 		for(int i = 1;i<pageNum;i++){
-			queue.urlQueueAdd(urlAnalyzeAll(i));
+			try {
+				queue.urlQueueAdd(urlAnalyzeAll(i));
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				log.error(e.getMessage());
+			}
 		}
 	}
 	
@@ -115,10 +126,17 @@ public class _66IP extends WebCrawler {
 	 * @param pageNum
 	 * @throws InterruptedException
 	 */
-	public static void urlAddQueueProvince(queueManagement queue,int pageNum) throws InterruptedException{
+	public static void urlAddQueueProvince(queueManagement queue,int pageNum){
+		Log log = LogFactory.getLog(_66IP.class);
 		for(int i = 1;i<=provinceNum;i++){
 			for(int j = 1;j<pageNum;j++){
-				queue.urlQueueAdd(urlAnalyzeProvince(i,j));
+				try {
+					queue.urlQueueAdd(urlAnalyzeProvince(i,j));
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					log.error(e.getMessage());
+				}
 			}
 		}
 	}

@@ -2,6 +2,8 @@ package com.proxyinstance;
 
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -17,7 +19,7 @@ import com.common.publicMethod.webCrawler.WebCrawler;
 
 
 public class XCDL extends WebCrawler {
-
+	public Log log = LogFactory.getLog(this.getClass());
 	private static final String URL = "http://www.xicidaili.com/";
 	public static final String[] typeList = {"nn","nt","wn","wt"};
 	
@@ -76,6 +78,7 @@ public class XCDL extends WebCrawler {
 			}
 		}catch(Exception e){
 			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return ;
 	}
@@ -108,10 +111,17 @@ public class XCDL extends WebCrawler {
 		}
 	}
 	
-	public static void urlAddQueue(queueManagement queue,int pageNum) throws InterruptedException{
+	public static void urlAddQueue(queueManagement queue,int pageNum) {
+		Log log = LogFactory.getLog(XCDL.class);
 		for(int i = 0;i<typeList.length;i++){
 			for(int j = 1;j<pageNum;j++){
-				queue.urlQueueAdd(urlAnalyze(typeList[i],j));
+				try {
+					queue.urlQueueAdd(urlAnalyze(typeList[i],j));
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					log.error(e.getMessage());
+				}
 			}
 		}
 	}

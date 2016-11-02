@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 
@@ -25,7 +27,8 @@ import com.proxyinstance._66IP;
  *
  */
 public class ThreadImp extends Thread {
-
+	
+	public Log log = LogFactory.getLog(this.getClass());
 	private queueManagement queue; // 共享区域的类
 
 	public ThreadImp(queueManagement queue) {
@@ -72,10 +75,7 @@ public class ThreadImp extends Thread {
 				System.out.println("===============队列长度:数组长度："+queue.urlQueue.size()+":"+queue.list.size());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 		}
 		//将数据加入数据库中
@@ -83,19 +83,11 @@ public class ThreadImp extends Thread {
 			--test.threadCount;
 		}
 		if(test.threadCount == 1){
-			try {
-				MysqlConnection sqlClass = new MysqlConnection();
-				DBConnectionParams params = sqlClass.setDefaultParams();
-				sqlClass.setParams(params);
-				Connection conn = sqlClass.getConnection();
-				sqlClass.insertBatchDataToDB(conn, queue.list); //插入数据库中
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			MysqlConnection sqlClass = new MysqlConnection();
+			DBConnectionParams params = sqlClass.setDefaultParams();
+			sqlClass.setParams(params);
+			Connection conn = sqlClass.getConnection();
+			sqlClass.insertBatchDataToDB(conn, queue.list); //插入数据库中
 		}
 		System.out.println("end");
 	}
