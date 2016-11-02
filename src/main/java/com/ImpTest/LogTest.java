@@ -15,6 +15,7 @@ public class LogTest {
 		} catch (RuntimeException e) {
 			log.error(e.getMessage());
 		}
+		System.out.println("test2");
 		log.info("out one method");
 	}
 
