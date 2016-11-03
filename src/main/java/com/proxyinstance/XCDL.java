@@ -66,6 +66,9 @@ public class XCDL extends WebCrawler {
 				data.setDegreeOfConfidentiality(td_Tag.get(4).text());
 				data.setType(setStrPro(td_Tag.get(5)));
 				data.setWebSite(domain);
+				data.setFlag(0);
+				data.setResponseTime(0);
+				data.setTestTimes(0);
 				
 				System.out.println(data.getIp()+":"
 						+data.getPort()+":"

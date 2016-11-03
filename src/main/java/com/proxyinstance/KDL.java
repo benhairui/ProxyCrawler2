@@ -91,6 +91,10 @@ public class KDL extends WebCrawler{
 
 				data.setAddress(setStrPro(tdTag_Address));
 				data.setWebSite(domain);
+				data.setFlag(0);
+				data.setResponseTime(0);
+				data.setTestTimes(0);
+				
 				list.add(data);
 				System.out.println(data.getIp()+":"
 						+data.getPort()+":"

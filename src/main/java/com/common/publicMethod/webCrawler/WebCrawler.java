@@ -2,10 +2,12 @@ package com.common.publicMethod.webCrawler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -78,6 +80,62 @@ public abstract class WebCrawler {
 			log.error(e.getMessage());
 		}
 		return null;
+	}
+	
+	/**
+	 * 用代理ip来进行访问
+	 * @param urlPath
+	 * @param ip
+	 * @param port
+	 * @return
+	 */
+	public HttpEntity getHtmlPageByProxy(String urlPath,String ip,int port){
+		HttpHost proxy = new HttpHost(ip,port);
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setProxy(proxy)
+				.setAuthenticationEnabled(true)
+				.setSocketTimeout(50000)
+				.setConnectTimeout(50000)
+				.setConnectionRequestTimeout(50000)
+				.build();
+
+		HttpContext httpContext = new BasicHttpContext();
+		
+		HttpGet get = new HttpGet(urlPath);
+		setHeaders(get);
+		get.setConfig(requestConfig);
+		CloseableHttpResponse response;
+		try {
+			response = (CloseableHttpResponse) httpClient.execute(get,httpContext);
+			System.out.println(response.getStatusLine());
+			//如果服务器返回错误，那么直接返回null;
+			//这里还应该加入4xx的返回结果；
+			//最好能加入日志记录，同时，在程序出现异常的时候，可以保存已有的结果；下次运行的时候，运行剩下的数据
+			int statusCode = response.getStatusLine().getStatusCode();
+			if(statusCode == 500||statusCode == 501||statusCode == 502||statusCode == 503
+					||statusCode == 504||statusCode == 505){
+				return null;
+			}
+			
+			HttpEntity entity = response.getEntity();
+			if(entity != null){
+				entity = new BufferedHttpEntity(entity);
+			}
+			response.close();
+			return entity;
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			log.error(e.getMessage());
+			return null;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			log.error(e.getMessage());
+			return null;
+		}finally{
+			get.releaseConnection();//连接释放
+		}
 	}
 	
 	/**

@@ -85,6 +85,9 @@ public class _66IP extends WebCrawler {
 				data.setDegreeOfConfidentiality(td_tag.get(3).text());
 				data.setType("");
 				data.setWebSite(domain);
+				data.setFlag(0);
+				data.setResponseTime(0);
+				data.setTestTimes(0);
 				list.add(data);
 				
 				System.out.println(data.getIp()+":"

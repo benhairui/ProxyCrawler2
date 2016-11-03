@@ -12,9 +12,12 @@ import java.util.concurrent.ArrayBlockingQueue;
  *
  */
 public class queueManagement {
-	private static final int queueMaxSize = 100000;
+	private static final int queueMaxSize = 10000000;
 	//共享队列，主要用来存储url
 	public ArrayBlockingQueue<String> urlQueue 	= new ArrayBlockingQueue<String>(queueMaxSize);
+	
+	//共享队列，主要用来存储代理ip的信息
+	public ArrayBlockingQueue<webData> proxyQueue = new ArrayBlockingQueue<webData>(queueMaxSize);
 	
 	//用来存储抓下来的代理服务器
 	public ArrayList<webData> list = new ArrayList<webData>();
@@ -31,4 +34,12 @@ public class queueManagement {
 		urlQueue.put(elem);
 	}
 	
+	//===proxyQueue添加取出
+	public webData proxyQueueGet() throws InterruptedException{
+		return proxyQueue.take();
+	}
+	
+	public void proxyQueueAdd(webData data) throws InterruptedException{
+		proxyQueue.put(data);
+	}
 }

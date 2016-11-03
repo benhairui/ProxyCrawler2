@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
@@ -102,12 +103,13 @@ public class MysqlConnection extends DBCommonConnection {
 	 * @throws SQLException
 	 */
 	public void insertBatchDataToDB(Connection conn, ArrayList<webData> dataList) {
+		int count = 0;
 		try {
 			conn.setAutoCommit(false);
 			PreparedStatement pst = conn
 					.prepareStatement("insert into ProxyData(Ip,Port,Address,DegreeOfConfidentiality,Type,WebSite) values"
 							+ "(?,?,?,?,?,?)");
-
+			
 			for (webData d : dataList) {
 				pst.setString(1, d.getIp());
 				pst.setInt(2, d.getPort());
@@ -115,26 +117,46 @@ public class MysqlConnection extends DBCommonConnection {
 				pst.setString(4, d.getDegreeOfConfidentiality());
 				pst.setString(5, d.getType());
 				pst.setString(6, d.getWebSite());
+				++count;
 				pst.addBatch();
+				//如果pst加载了5000，那么执行批量插入
+				if(count / 5000 == 1){
+					pst.executeBatch(); 
+					pst.clearBatch();
+					count = 0;
+				}
 			}
-			pst.executeBatch(); // int[] 可以使用一个返回值来判断插入是否成功
+			if(count<5000 && count > 0){//还有剩余部分
+				pst.executeBatch();//最终可能没有超过5000，那么需要再次执行 
+				pst.clearBatch();// int[] 可以使用一个返回值来判断插入是否成功
+			}
 			conn.commit();
 			System.out.println("插入结束");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			log.error(e.getMessage());
+		}finally{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				log.error(e.getMessage());;
+			}
 		}
 
 	}
 
-	public ArrayList<webData> getDataFromDB(Connection conn, String degree) {
+	public ArrayList<webData> getDataFromDB(Connection conn) {
 		try {
-			PreparedStatement pst = conn
-					.prepareStatement("select *from ProxyCrawler where DegreeOfConfidentiality = ‘"
-							+ degree + "’");
-			ResultSet rs = pst.getResultSet();
+			/*PreparedStatement pst = conn
+					.prepareStatement("select *from ProxyData");*/
+			Statement stmt = conn.createStatement();
+			stmt.execute("select *from ProxyData");
+			ResultSet rs = stmt.getResultSet();
 			if (rs == null) {
+				System.out.println("为空");
 				return null;
 			}
 			ArrayList<webData> list = new ArrayList<webData>();
@@ -145,12 +167,23 @@ public class MysqlConnection extends DBCommonConnection {
 				d.setDegreeOfConfidentiality(rs
 						.getString("DegreeOfConfidentiality"));
 				d.setType(rs.getString("type"));
+				d.setFlag(rs.getInt("flag"));
+				d.setResponseTime(rs.getInt("ResponseTime"));
+				d.setTestTimes(rs.getInt("TestTimes"));
 				list.add(d);
 			}
 			return list;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
+		}finally{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				log.error(e.getMessage());
+			}
 		}
 		return null;
 	}

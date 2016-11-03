@@ -6,13 +6,46 @@ package com.common.data;
  *
  */
 public class webData {
+	//主键，主要是用来更新数据库中的测试次数，如果超过一定的阈值，那么
+	private int index;
 	private String Ip;
 	private int port;
 	private String degreeOfConfidentiality;
 	private String type;
 	private String address;
 	private String webSite;
+	//响应时间，主要是测试用的
+	private long responseTime;
+	//用来统计测试次数
+	private int testTimes;
+	//该代理ip是否可以正常工作{0,1}
+	private int flag;
 	
+	
+	public int getIndex() {
+		return index;
+	}
+	public void setIndex(int index) {
+		this.index = index;
+	}
+	public int getFlag() {
+		return flag;
+	}
+	public void setFlag(int flag) {
+		this.flag = flag;
+	}
+	public long getResponseTime() {
+		return responseTime;
+	}
+	public void setResponseTime(long responseTime2) {
+		this.responseTime = responseTime2;
+	}
+	public int getTestTimes() {
+		return testTimes;
+	}
+	public void setTestTimes(int testTimes) {
+		this.testTimes = testTimes;
+	}
 	public String getWebSite() {
 		return webSite;
 	}
