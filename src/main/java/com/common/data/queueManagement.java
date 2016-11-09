@@ -14,13 +14,23 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class queueManagement {
 	private static final int queueMaxSize = 10000000;
 	//共享队列，主要用来存储url
-	public ArrayBlockingQueue<String> urlQueue 	= new ArrayBlockingQueue<String>(queueMaxSize);
+	public ArrayBlockingQueue<String> urlQueue 	;
+	//= new ArrayBlockingQueue<String>(queueMaxSize);
 	
 	//共享队列，主要用来存储代理ip的信息
-	public ArrayBlockingQueue<webData> proxyQueue = new ArrayBlockingQueue<webData>(queueMaxSize);
+	public ArrayBlockingQueue<webData> proxyQueue;
+	//= new ArrayBlockingQueue<webData>(queueMaxSize);
 	
 	//用来存储抓下来的代理服务器
-	public ArrayList<webData> list = new ArrayList<webData>();
+	public ArrayList<webData> list ;
+	//= new ArrayList<webData>();
+	
+	public void InitQueue(){
+		urlQueue = new ArrayBlockingQueue<String>(queueMaxSize);
+		proxyQueue = new ArrayBlockingQueue<webData>(queueMaxSize);
+		list = new ArrayList<webData>();
+	}
+	
 	/**
 	 * ArrayBlockingQueue的take函数，会在队列为空时，线程wait并且释放cpu
 	 * @return
@@ -41,5 +51,17 @@ public class queueManagement {
 	
 	public void proxyQueueAdd(webData data) throws InterruptedException{
 		proxyQueue.put(data);
+	}
+	
+	public void clearUrl(){
+		if(!urlQueue.isEmpty()){
+			urlQueue.clear();
+		}
+		if(!list.isEmpty()){
+			list.clear();
+		}
+		if(!(proxyQueue.isEmpty())){
+			proxyQueue.clear();
+		}
 	}
 }

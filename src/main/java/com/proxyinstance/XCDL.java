@@ -37,11 +37,11 @@ public class XCDL extends WebCrawler {
 		//ArrayList<webData> list = new ArrayList<webData>(); // 存储webdata
 		String domain = commonMethod.getDomain(URL);
 		try{
-			String html = EntityUtils.toString(entity);
+			
 			if(entity == null){
 				return ;
 			}
-			
+			String html = EntityUtils.toString(entity);
 			Document doc = Jsoup.parse(html);
 			Element table = doc.getElementById("ip_list");
 			if(table == null){
@@ -66,9 +66,11 @@ public class XCDL extends WebCrawler {
 				data.setDegreeOfConfidentiality(td_Tag.get(4).text());
 				data.setType(setStrPro(td_Tag.get(5)));
 				data.setWebSite(domain);
-				data.setFlag(0);
+				data.setFlag(false);
 				data.setResponseTime(0);
 				data.setTestTimes(0);
+				data.setIsNew(true);
+				list.add(data);
 				
 				System.out.println(data.getIp()+":"
 						+data.getPort()+":"
@@ -77,10 +79,10 @@ public class XCDL extends WebCrawler {
 						+data.getType()+":"
 						+data.getWebSite());
 				
-				list.add(data);
+				
 			}
 		}catch(Exception e){
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			log.error(e.getMessage());
 		}
 		return ;
@@ -114,15 +116,14 @@ public class XCDL extends WebCrawler {
 		}
 	}
 	
-	public static void urlAddQueue(queueManagement queue,int pageNum) {
+	public static void urlAddQueue(queueManagement queue,int startPage,int pageNum) {
 		Log log = LogFactory.getLog(XCDL.class);
 		for(int i = 0;i<typeList.length;i++){
-			for(int j = 1;j<pageNum;j++){
+			for(int j = startPage;j<=pageNum;j++){
 				try {
 					queue.urlQueueAdd(urlAnalyze(typeList[i],j));
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
 					log.error(e.getMessage());
 				}
 			}

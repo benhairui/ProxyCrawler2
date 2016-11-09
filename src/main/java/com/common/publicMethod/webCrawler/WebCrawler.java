@@ -41,9 +41,9 @@ public abstract class WebCrawler {
 	public HttpEntity getHtmlPage(String urlPath){
 		RequestConfig defaultConfig = RequestConfig.custom().build();
 		RequestConfig requestConfig = RequestConfig.copy(defaultConfig)
-				.setSocketTimeout(50000)
-				.setConnectTimeout(50000)
-				.setConnectionRequestTimeout(50000)
+				.setSocketTimeout(10000)
+				.setConnectTimeout(10000)
+				.setConnectionRequestTimeout(10000)
 				.build();
 		HttpContext httpContext = new BasicHttpContext();
 		
@@ -71,12 +71,10 @@ public abstract class WebCrawler {
 			response.close();
 			return entity;
 		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			log.error(e.getMessage());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e);
 			log.error(e.getMessage());
 		}
 		return null;
@@ -94,9 +92,9 @@ public abstract class WebCrawler {
 		RequestConfig requestConfig = RequestConfig.custom()
 				.setProxy(proxy)
 				.setAuthenticationEnabled(true)
-				.setSocketTimeout(50000)
-				.setConnectTimeout(50000)
-				.setConnectionRequestTimeout(50000)
+				.setSocketTimeout(5000)
+				.setConnectTimeout(5000)
+				.setConnectionRequestTimeout(5000)
 				.build();
 
 		HttpContext httpContext = new BasicHttpContext();
@@ -113,24 +111,28 @@ public abstract class WebCrawler {
 			//最好能加入日志记录，同时，在程序出现异常的时候，可以保存已有的结果；下次运行的时候，运行剩下的数据
 			int statusCode = response.getStatusLine().getStatusCode();
 			if(statusCode == 500||statusCode == 501||statusCode == 502||statusCode == 503
-					||statusCode == 504||statusCode == 505){
+					||statusCode == 504||statusCode == 505 ||statusCode == 404){
 				return null;
 			}
 			
 			HttpEntity entity = response.getEntity();
-			if(entity != null){
+			if(entity != null && statusCode == 200){
 				entity = new BufferedHttpEntity(entity);
+				response.close();
+				return entity;
+			}else{
+				return null;
 			}
-			response.close();
-			return entity;
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.out.println(e.getMessage());
 			log.error(e.getMessage());
 			return null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.out.println(e.getMessage());
 			log.error(e.getMessage());
 			return null;
 		}finally{

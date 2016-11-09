@@ -19,19 +19,27 @@ public class webData {
 	//用来统计测试次数
 	private int testTimes;
 	//该代理ip是否可以正常工作{0,1}
-	private int flag;
+	private boolean flag;
+	//该代理ip是否是新抓下来的，如果是，则为1，不是，则为0
+	private boolean isNew;
 	
 	
+	public boolean getIsNew() {
+		return isNew;
+	}
+	public void setIsNew(boolean isNew) {
+		this.isNew = isNew;
+	}
 	public int getIndex() {
 		return index;
 	}
 	public void setIndex(int index) {
 		this.index = index;
 	}
-	public int getFlag() {
+	public boolean getFlag() {
 		return flag;
 	}
-	public void setFlag(int flag) {
+	public void setFlag(boolean flag) {
 		this.flag = flag;
 	}
 	public long getResponseTime() {

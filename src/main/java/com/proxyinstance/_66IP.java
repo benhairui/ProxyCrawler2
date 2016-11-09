@@ -53,8 +53,11 @@ public class _66IP extends WebCrawler {
 		//ArrayList<webData> list = new ArrayList<webData>();
 		String domain = commonMethod.getDomain(URL);
 		try {
+			if(entity == null){
+				return;
+			}
 			String html = EntityUtils.toString(entity,"gb2312");
-			if (html.isEmpty() || entity == null) {
+			if (html.isEmpty()) {
 				return ;
 			}
 			Document doc = Jsoup.parse(html);
@@ -85,9 +88,10 @@ public class _66IP extends WebCrawler {
 				data.setDegreeOfConfidentiality(td_tag.get(3).text());
 				data.setType("");
 				data.setWebSite(domain);
-				data.setFlag(0);
+				data.setFlag(false);
 				data.setResponseTime(0);
 				data.setTestTimes(0);
+				data.setIsNew(true);
 				list.add(data);
 				
 				System.out.println(data.getIp()+":"
@@ -98,7 +102,7 @@ public class _66IP extends WebCrawler {
 						+data.getWebSite());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			log.error(e.getMessage());
 		}
 		return ;
@@ -110,14 +114,14 @@ public class _66IP extends WebCrawler {
 	 * @param pageNum
 	 * @throws InterruptedException
 	 */
-	public static void urlAddQueueAll(queueManagement queue,int pageNum){
+	public static void urlAddQueueAll(queueManagement queue,int startPage,int pageNum){
 		Log log = LogFactory.getLog(_66IP.class);
-		for(int i = 1;i<pageNum;i++){
+		for(int i = startPage;i<=pageNum;i++){
 			try {
 				queue.urlQueueAdd(urlAnalyzeAll(i));
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println(e.getMessage());
 				log.error(e.getMessage());
 			}
 		}
@@ -129,15 +133,15 @@ public class _66IP extends WebCrawler {
 	 * @param pageNum
 	 * @throws InterruptedException
 	 */
-	public static void urlAddQueueProvince(queueManagement queue,int pageNum){
+	public static void urlAddQueueProvince(queueManagement queue,int startPage,int pageNum){
 		Log log = LogFactory.getLog(_66IP.class);
 		for(int i = 1;i<=provinceNum;i++){
-			for(int j = 1;j<pageNum;j++){
+			for(int j = startPage;j<=pageNum;j++){
 				try {
 					queue.urlQueueAdd(urlAnalyzeProvince(i,j));
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.out.println(e.getMessage());
 					log.error(e.getMessage());
 				}
 			}

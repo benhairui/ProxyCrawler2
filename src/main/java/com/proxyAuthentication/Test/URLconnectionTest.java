@@ -1,4 +1,4 @@
-package com.proxyAuthentication;
+package com.proxyAuthentication.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,8 +13,8 @@ public class URLconnectionTest {
 	
 	public static void main(String []args){
 		URL url;
-		try {//42.51.13.103:8118  111.1.3.38:8000
-			Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("111.1.3.38", 8000));  
+		try {//42.51.13.103:8118  111.1.3.38:8000 183.129.178.14:8888
+			Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("183.129.178.14", 8888));  
 			url = new URL("http://www.163.com");  
 			HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);  
 			uc.setConnectTimeout(10000);

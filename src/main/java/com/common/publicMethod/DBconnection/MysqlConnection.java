@@ -61,11 +61,11 @@ public class MysqlConnection extends DBCommonConnection {
 			return conn;
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			log.error(e.getMessage());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			log.error(e.getMessage());
 		}
 		return null;
@@ -92,7 +92,7 @@ public class MysqlConnection extends DBCommonConnection {
 			conn.commit();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			log.error(e.getMessage());
 		}
 	}
@@ -102,13 +102,14 @@ public class MysqlConnection extends DBCommonConnection {
 	 * 
 	 * @throws SQLException
 	 */
-	public void insertBatchDataToDB(Connection conn, ArrayList<webData> dataList) {
+	public boolean insertBatchDataToDB(Connection conn, ArrayList<webData> dataList,String dataBase) {
 		int count = 0;
+		int updateCount = 0;
 		try {
 			conn.setAutoCommit(false);
 			PreparedStatement pst = conn
-					.prepareStatement("insert into ProxyData(Ip,Port,Address,DegreeOfConfidentiality,Type,WebSite) values"
-							+ "(?,?,?,?,?,?)");
+					.prepareStatement("insert into "+ dataBase +"(Ip,Port,Address,DegreeOfConfidentiality,Type,WebSite,ResponseTime,TestTimes,Flag,IsNew) values"
+							+ "(?,?,?,?,?,?,?,?,?,?)");
 			
 			for (webData d : dataList) {
 				pst.setString(1, d.getIp());
@@ -117,43 +118,48 @@ public class MysqlConnection extends DBCommonConnection {
 				pst.setString(4, d.getDegreeOfConfidentiality());
 				pst.setString(5, d.getType());
 				pst.setString(6, d.getWebSite());
+				pst.setLong(7, d.getResponseTime());
+				pst.setInt(8, d.getTestTimes());
+				pst.setBoolean(9, d.getFlag());
+				pst.setBoolean(10, d.getIsNew());
 				++count;
 				pst.addBatch();
 				//如果pst加载了5000，那么执行批量插入
-				if(count / 5000 == 1){
-					pst.executeBatch(); 
+				if(count / 500 == 1){
+					updateCount = updateCount + pst.executeBatch().length; 
 					pst.clearBatch();
+					conn.commit();
 					count = 0;
 				}
 			}
-			if(count<5000 && count > 0){//还有剩余部分
-				pst.executeBatch();//最终可能没有超过5000，那么需要再次执行 
+			if(count<500 && count > 0){//还有剩余部分
+				updateCount = updateCount + pst.executeBatch().length;//最终可能没有超过5000，那么需要再次执行 
+				conn.commit();
 				pst.clearBatch();// int[] 可以使用一个返回值来判断插入是否成功
 			}
-			conn.commit();
+			
+			if(updateCount  == dataList.size()){
+				return true;
+			}
 			System.out.println("插入结束");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			log.error(e.getMessage());
-		}finally{
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				log.error(e.getMessage());;
-			}
 		}
-
+		return false;
 	}
-
-	public ArrayList<webData> getDataFromDB(Connection conn) {
+	
+	/**
+	 * 从数据库中获取数据
+	 * @param conn
+	 * @param sql
+	 * @return
+	 */
+	public ArrayList<webData> getDataFromDB(Connection conn,String sql) {
 		try {
-			/*PreparedStatement pst = conn
-					.prepareStatement("select *from ProxyData");*/
 			Statement stmt = conn.createStatement();
-			stmt.execute("select *from ProxyData");
+			stmt.execute(sql);
 			ResultSet rs = stmt.getResultSet();
 			if (rs == null) {
 				System.out.println("为空");
@@ -162,29 +168,68 @@ public class MysqlConnection extends DBCommonConnection {
 			ArrayList<webData> list = new ArrayList<webData>();
 			while (rs.next()) {
 				webData d = new webData();
+				d.setIndex(rs.getInt("Id"));
 				d.setIp(rs.getString("Ip"));
 				d.setPort(rs.getInt("Port"));
-				d.setDegreeOfConfidentiality(rs
-						.getString("DegreeOfConfidentiality"));
-				d.setType(rs.getString("type"));
-				d.setFlag(rs.getInt("flag"));
+				d.setAddress(rs.getString("Address"));
+				d.setDegreeOfConfidentiality(rs.getString("DegreeOfConfidentiality"));
+				d.setWebSite(rs.getString("WebSite"));
+				d.setType(rs.getString("Type"));
 				d.setResponseTime(rs.getInt("ResponseTime"));
 				d.setTestTimes(rs.getInt("TestTimes"));
+				d.setFlag(rs.getBoolean("Flag"));
+				d.setIsNew(rs.getBoolean("IsNew"));
 				list.add(d);
 			}
 			return list;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			log.error(e.getMessage());
 		}finally{
 			try {
 				conn.close();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println(e.getMessage());
 				log.error(e.getMessage());
 			}
 		}
 		return null;
 	}
+	/**
+	 * 删除中间表数据
+	 * 删除表中数据，主要是针对代理检测结束后，中间表数据插入后，对主表数据删除，插入新数据
+	 */
+	public void deleteDB(Connection conn,String dataBase){
+		MysqlConnection mysql = new MysqlConnection();
+		DBConnectionParams params = mysql.setDefaultParams();
+		mysql.setParams(params);
+		Connection cn = mysql.getConnection();
+		String sql = "delete from " + dataBase;
+		//System.out.println(sql);
+		try {
+			PreparedStatement ps = cn.prepareStatement(sql);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			log.error(e.getMessage());
+		}finally{
+			try {
+				cn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				System.out.println(e.getMessage());
+				log.error(e.getMessage());
+			}
+		}
+	}
+	
+	public static void main(String []args){
+		MysqlConnection mysql = new MysqlConnection();
+		DBConnectionParams params = mysql.setDefaultParams();
+		mysql.setParams(params);
+		Connection conn = mysql.getConnection();
+		mysql.deleteDB(conn, "ProxyData");
+		System.out.println("end");
+	}
+	
 }

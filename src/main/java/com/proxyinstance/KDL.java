@@ -39,8 +39,12 @@ public class KDL extends WebCrawler{
 		//ArrayList<webData> list = new ArrayList<webData>(); // 存储webdata
 		String domain = commonMethod.getDomain(URL); 
 		try {
+			if(entity == null){
+				return;
+			}
+			
 			String html = EntityUtils.toString(entity);
-			if (html.isEmpty()||entity == null) {
+			if (html.isEmpty()) {
 				return ;
 			}
 			
@@ -91,11 +95,12 @@ public class KDL extends WebCrawler{
 
 				data.setAddress(setStrPro(tdTag_Address));
 				data.setWebSite(domain);
-				data.setFlag(0);
+				data.setFlag(false);
 				data.setResponseTime(0);
 				data.setTestTimes(0);
-				
+				data.setIsNew(true);
 				list.add(data);
+				
 				System.out.println(data.getIp()+":"
 						+data.getPort()+":"
 						+data.getDegreeOfConfidentiality()+":"
@@ -105,10 +110,10 @@ public class KDL extends WebCrawler{
 			}
 
 		} catch (ParseException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			log.error(e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			log.error(e.getMessage());
 		}
 		//return list;
@@ -145,20 +150,17 @@ public class KDL extends WebCrawler{
 	 * @param pageNum
 	 * @throws InterruptedException 
 	 */
-	public static void urlAddQueue(queueManagement queue,int pageNum){
+	public static void urlAddQueue(queueManagement queue,int startPage,int pageNum){
 		Log log = LogFactory.getLog(KDL.class);
 		for(int i = 0;i<typeList.length;i++){
-			for(int j = 1;j<pageNum;j++){
+			for(int j = startPage;j<=pageNum;j++){
 				try {
 					queue.urlQueueAdd(urlAnalyze(typeList[i],j));
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.out.println(e.getMessage());
 					log.error(e.getMessage());
 				}
 			}
 		}
 	}
-	
-	
 }
