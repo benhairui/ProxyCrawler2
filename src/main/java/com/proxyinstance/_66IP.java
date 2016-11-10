@@ -116,7 +116,7 @@ public class _66IP extends WebCrawler {
 	 */
 	public static void urlAddQueueAll(queueManagement queue,int startPage,int pageNum){
 		Log log = LogFactory.getLog(_66IP.class);
-		for(int i = startPage;i<=pageNum;i++){
+		for(int i = startPage;i<=pageNum+startPage;i++){
 			try {
 				queue.urlQueueAdd(urlAnalyzeAll(i));
 			} catch (InterruptedException e) {
@@ -136,7 +136,7 @@ public class _66IP extends WebCrawler {
 	public static void urlAddQueueProvince(queueManagement queue,int startPage,int pageNum){
 		Log log = LogFactory.getLog(_66IP.class);
 		for(int i = 1;i<=provinceNum;i++){
-			for(int j = startPage;j<=pageNum;j++){
+			for(int j = startPage;j<=pageNum+startPage;j++){
 				try {
 					queue.urlQueueAdd(urlAnalyzeProvince(i,j));
 				} catch (InterruptedException e) {

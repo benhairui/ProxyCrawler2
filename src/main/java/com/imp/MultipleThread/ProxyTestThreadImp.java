@@ -114,7 +114,6 @@ public class ProxyTestThreadImp extends Thread {
 					ImpMain.flag = true;
 					ImpMain.IsActive = true;
 					ImpMain.startProxyDate = new Date();
-					ImpMain.pageNum += 20;
 				}
 				System.out.println("===============当前抓取页数：" + ImpMain.pageNum);
 				System.out.println("finish");

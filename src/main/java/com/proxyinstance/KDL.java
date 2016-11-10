@@ -153,7 +153,7 @@ public class KDL extends WebCrawler{
 	public static void urlAddQueue(queueManagement queue,int startPage,int pageNum){
 		Log log = LogFactory.getLog(KDL.class);
 		for(int i = 0;i<typeList.length;i++){
-			for(int j = startPage;j<=pageNum;j++){
+			for(int j = startPage;j<=pageNum+startPage;j++){
 				try {
 					queue.urlQueueAdd(urlAnalyze(typeList[i],j));
 				} catch (InterruptedException e) {

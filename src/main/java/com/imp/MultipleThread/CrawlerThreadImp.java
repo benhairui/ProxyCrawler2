@@ -105,6 +105,7 @@ public class CrawlerThreadImp extends Thread {
 					ImpMain.setPageNum(); //对startPage和pageNum进行判断
 				}
 				System.out.println("运行结束！");
+				System.out.println("改变后的"+ImpMain.startPage + ":" + ImpMain.pageNum);
 			}
 		}
 	}
